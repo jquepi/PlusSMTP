@@ -16,15 +16,15 @@ protocol SMTPUser {
     var string: String { get }
 }
 
-class SMTP {
+public class SMTP {
     
     
-    struct Sender: SMTPUser {
+    public struct Sender: SMTPUser {
         
-        let name: String
-        let email: String
+        public let name: String
+        public  let email: String
         
-        var string: String {
+        public var string: String {
             if name.characters.count > 0 {
                 return "\(name) <\(email)>"
             } else {
@@ -34,18 +34,18 @@ class SMTP {
         
     }
     
-    struct Recipient: SMTPUser {
+    public struct Recipient: SMTPUser {
         
-        enum `Type` {
+        public enum `Type` {
             case to
             case cc
             case bcc
         }
-        let name: String
-        let email: String
-        let type: Type
+        public let name: String
+        public let email: String
+        public let type: Type
         
-        var string: String {
+        public var string: String {
             if name.characters.count > 0 {
                 return "\(name) <\(email)>"
             } else {
@@ -54,33 +54,33 @@ class SMTP {
         }
     }
     
-    enum SendError : Error {
+    public enum SendError : Error {
         case noRecipients
         case curlError(Int)
     }
     
-    var `protocol`: String = "smtp"
-    let server: String
-    var port: Int = 587
-    let username: String
-    let password: String
-    let from: Sender
-    let recipients: [Recipient]
-    let subject: String
-    var mailBodyData: Data = Data()
+    public var `protocol`: String = "smtp"
+    public let server: String
+    public var port: Int = 587
+    public let username: String
+    public let password: String
+    public let from: Sender
+    public let recipients: [Recipient]
+    public let subject: String
+    public var mailBodyData: Data = Data()
     
     
-    func appendBody(data: Data) {
+    public func appendBody(data: Data) {
         mailBodyData.append(data)
     }
     
-    func appendBody(text: String) {
+    public func appendBody(text: String) {
         let data = text.data(using: .utf8)!
         mailBodyData.append(data)
     }
     
     
-    init(server: String, username: String, password: String, from: Sender, recipients: [Recipient], subject: String) {
+    public init(server: String, username: String, password: String, from: Sender, recipients: [Recipient], subject: String) {
         self.server = server
         self.username = username
         self.password = password
@@ -127,7 +127,7 @@ class SMTP {
     
 
     
-    func send() throws {
+    public func send() throws {
         
         let allRecs = allRecipients
         
