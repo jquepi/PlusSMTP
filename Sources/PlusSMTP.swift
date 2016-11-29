@@ -12,8 +12,30 @@ import PerfectCURL
 
 
 
+
 public class SMTP {
     
+    
+    public class MailBody {
+        
+        public var mailBodyData: Data = Data()
+        
+        
+        public func append(data: Data) {
+            mailBodyData.append(data)
+        }
+        
+        public func append(text: String) {
+            let data = text.data(using: .utf8)!
+            mailBodyData.append(data)
+        }
+        
+        public init() {
+            
+        }
+        
+    }
+
     
     public struct Sender {
         
@@ -69,35 +91,21 @@ public class SMTP {
     
     public var `protocol`: String = "smtp"
     public let server: String
-    public var port: Int = 587
+    public var port: Int
     public let username: String
     public let password: String
-    public let from: Sender
-    public let recipients: [Recipient]
-    public let subject: String
-    public var mailBodyData: Data = Data()
+
     
     
-    public func appendBody(data: Data) {
-        mailBodyData.append(data)
-    }
     
-    public func appendBody(text: String) {
-        let data = text.data(using: .utf8)!
-        mailBodyData.append(data)
-    }
-    
-    
-    public init(server: String, username: String, password: String, from: Sender, recipients: [Recipient], subject: String) {
-        self.server = server
+    public init(address: String, port: Int = 587, username: String, password: String) {
+        self.server = address
+        self.port = port
         self.username = username
         self.password = password
-        self.from = from
-        self.recipients = recipients
-        self.subject = subject
     }
     
-    var allRecipients: [String] {
+    func stringRecipients(recipients: [Recipient]) -> [String] {
         var result: [String] = []
         for rec in recipients {
             result.append(rec.email)
@@ -105,7 +113,7 @@ public class SMTP {
         return result
     }
     
-    func filerRecipients(type: Recipient.`Type`) -> [String] {
+    func filterRecipients(recipients: [Recipient], type: Recipient.`Type`) -> [String] {
         var result: [String] = []
         
         for rec in recipients {
@@ -135,17 +143,17 @@ public class SMTP {
     
 
     
-    public func send() throws {
+    public func send(subject: String, body: MailBody, from: Sender, recipients: [Recipient]) throws {
         
-        let allRecs = allRecipients
+        let allRecs = stringRecipients(recipients: recipients)
         
         guard allRecs.count > 0 else {
             throw SendError.noRecipients
         }
         
         let fromStr = from.string
-        let toRec = filerRecipients(type: .to)
-        let ccRec = filerRecipients(type: .cc)
+        let toRec = filterRecipients(recipients: recipients, type: .to)
+        let ccRec = filterRecipients(recipients: recipients, type: .cc)
         
         let toRecStr = recipientsString(toRec)
         let ccRecStr = recipientsString(ccRec)
@@ -185,7 +193,7 @@ public class SMTP {
         
         var fullBodyData = header.data(using: .utf8)!
         
-        fullBodyData.append(mailBodyData)
+        fullBodyData.append(body.mailBodyData)
         
         let bodyBytes = [UInt8](fullBodyData)
         
@@ -224,7 +232,7 @@ public class SMTP {
         
     }
     
-    
-    
-    
 }
+
+
+
