@@ -12,17 +12,13 @@ import PerfectCURL
 
 
 
-protocol SMTPUser {
-    var string: String { get }
-}
-
 public class SMTP {
     
     
-    public struct Sender: SMTPUser {
+    public struct Sender {
         
-        public let name: String
-        public  let email: String
+        public var name: String
+        public var email: String
         
         public var string: String {
             if name.characters.count > 0 {
@@ -32,18 +28,23 @@ public class SMTP {
             }
         }
         
+        public init(name: String, email: String) {
+            self.name = name
+            self.email = email
+        }
+        
     }
     
-    public struct Recipient: SMTPUser {
+    public struct Recipient {
         
         public enum `Type` {
             case to
             case cc
             case bcc
         }
-        public let name: String
-        public let email: String
-        public let type: Type
+        public var name: String
+        public var email: String
+        public var type: Type
         
         public var string: String {
             if name.characters.count > 0 {
@@ -52,6 +53,13 @@ public class SMTP {
                 return "<\(email)>"
             }
         }
+        
+        public init(name: String, email: String, type: Type) {
+            self.name = name
+            self.email = email
+            self.type = type
+        }
+
     }
     
     public enum SendError : Error {
