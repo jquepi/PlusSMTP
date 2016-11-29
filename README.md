@@ -1,6 +1,12 @@
 # PlusSMTP
 Swift SMTP library based on cURL
 
+## Dependency
+Add to Package.swift
+```
+.Package(url: "https://github.com/matejukmar/PlusSMTP.git", majorVersion: 1, minor: 0)
+```
+
 ## Usage
 
 ```swift
