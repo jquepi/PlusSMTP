@@ -3,7 +3,7 @@ Swift SMTP library based on cURL
 
 ## Usage
 
-```
+```swift
 import Foundation
 import PlusSMTP
 
