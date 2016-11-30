@@ -25,7 +25,7 @@ let body = SMTP.MailBody()
 body.append(text: "Hello world from swift Mail")
 
 do {
-    try smtp.send(
+    let (responseHeader, responseBody) = try smtp.send(
         subject: "Hello world Swift",
         body: body,
         from: SMTP.Sender(name: "Sender Name", email: "sender@gmail.com"),

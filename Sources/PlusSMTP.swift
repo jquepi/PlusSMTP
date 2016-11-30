@@ -86,7 +86,7 @@ public class SMTP {
     
     public enum SendError : Error {
         case noRecipients
-        case curlError(Int)
+        case curlError(Int, Data, Data)
     }
     
     public var `protocol`: String = "smtp"
@@ -143,7 +143,13 @@ public class SMTP {
     
 
     
-    public func send(subject: String, body: MailBody, from: Sender, recipients: [Recipient]) throws {
+    public func send(
+        subject: String,
+        body: MailBody,
+        from: Sender,
+        recipients: [Recipient],
+        verbose: Bool = false
+        ) throws -> (responseHeader: Data, responseBody: Data) {
         
         let allRecs = stringRecipients(recipients: recipients)
         
@@ -177,58 +183,49 @@ public class SMTP {
         let curl = CURL(url: url)
         
         curl.setOption(CURLOPT_MAIL_FROM, s: from.email)
-        
-        
         curl.setOption(CURLOPT_MAIL_RCPT, array: allRecs)
-        
-        curl.setOption(CURLOPT_UPLOAD, int: 1)
-        
-        
-        curl.setOption(CURLOPT_USE_SSL, int: Int(CURLUSESSL_ALL.rawValue))
-        
-        
         curl.setOption(CURLOPT_USERNAME, s: username)
         curl.setOption(CURLOPT_PASSWORD, s: password)
-        
+        curl.setOption(CURLOPT_UPLOAD, int: 1)
+        curl.setOption(CURLOPT_USE_SSL, int: Int(CURLUSESSL_ALL.rawValue))
         
         var fullBodyData = header.data(using: .utf8)!
-        
         fullBodyData.append(body.mailBodyData)
-        
         let bodyBytes = [UInt8](fullBodyData)
-        
         curl.uploadBodyBytes = bodyBytes
         
-        let fullBodyStr = String(data: fullBodyData, encoding: .utf8)!
-        
-        print("fullBodyStr: \(fullBodyStr)")
-        
+        if verbose {
+            let fullBodyStr = String(data: fullBodyData, encoding: .utf8)!
+            print("fullBodyStr: \(fullBodyStr)")
+        }
         
         curl.setOption(CURLOPT_INFILESIZE, int: bodyBytes.count)
         
-        curl.setOption(CURLOPT_VERBOSE, int: 1)
+        if verbose {
+            curl.setOption(CURLOPT_VERBOSE, int: 1)
+        }
         
         let (result, returnHeaderBytes, returnBodyBytes) = curl.performFully()
         
-        print ("curl result: \(result)")
-        
-        print ("-------")
-        
-        let strHeader = String(bytes: returnHeaderBytes, encoding: .utf8)!
-        
-        let strBody = String(bytes: returnBodyBytes, encoding: .utf8)!
-        
-        print ("-------")
-        
-        print ("curl header Data: \(strHeader)")
-        
-        print ("-------")
-        
-        print ("curl body Data: \(strBody)")
+        if verbose {
+            print ("curl result: \(result)")
+            print ("-------")
+            let strHeader = String(bytes: returnHeaderBytes, encoding: .utf8)!
+            let strBody = String(bytes: returnBodyBytes, encoding: .utf8)!
+            print ("-------")
+            print ("curl header: \(strHeader)")
+            print ("-------")
+            print ("curl body: \(strBody)")
+        }
+
+        let responseHeaderData = Data(bytes: returnHeaderBytes)
+        let responseBodyData = Data(bytes: returnBodyBytes)
         
         if result != 0 {
-            throw SendError.curlError(result)
+            throw SendError.curlError(result, responseHeaderData, responseBodyData)
         }
+        
+        return (responseHeaderData, responseBodyData)
         
     }
     
