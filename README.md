@@ -1,5 +1,5 @@
 # PlusSMTP
-Swift SMTP library based on cURL
+Swift SMTP library based on cURL library. Suitable for server side Swift development.
 
 ## Dependency
 Add to Package.swift
