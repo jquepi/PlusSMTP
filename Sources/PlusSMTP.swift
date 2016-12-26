@@ -183,7 +183,7 @@ public class SMTP {
         let curl = CURL(url: url)
         
         curl.setOption(CURLOPT_MAIL_FROM, s: from.email)
-        curl.setOption(CURLOPT_MAIL_RCPT, array: allRecs)
+        curl.setOption(CURLOPT_MAIL_RCPT, list: allRecs)
         curl.setOption(CURLOPT_USERNAME, s: username)
         curl.setOption(CURLOPT_PASSWORD, s: password)
         curl.setOption(CURLOPT_UPLOAD, int: 1)
