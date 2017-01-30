@@ -16,27 +16,6 @@ import PerfectCURL
 public class SMTP {
     
     
-    public class MailBody {
-        
-        public var mailBodyData: Data = Data()
-        
-        
-        public func append(data: Data) {
-            mailBodyData.append(data)
-        }
-        
-        public func append(text: String) {
-            let data = text.data(using: .utf8)!
-            mailBodyData.append(data)
-        }
-        
-        public init() {
-            
-        }
-        
-    }
-
-    
     public struct Sender {
         
         public var name: String
@@ -142,10 +121,23 @@ public class SMTP {
     }
     
 
-    
+	public func send(
+		subject: String,
+		body: String,
+		from: Sender,
+		recipients: [Recipient],
+		verbose: Bool = false
+		) throws -> (responseHeader: Data, responseBody: Data) {
+		
+		let bodyData = body.data(using: .utf8)
+		
+		send(subject: subject, body: bodyData, from: from, recipients: recipients)
+		
+	}
+		
     public func send(
         subject: String,
-        body: MailBody,
+        body: Data,
         from: Sender,
         recipients: [Recipient],
         verbose: Bool = false
@@ -190,7 +182,7 @@ public class SMTP {
         curl.setOption(CURLOPT_USE_SSL, int: Int(CURLUSESSL_ALL.rawValue))
         
         var fullBodyData = header.data(using: .utf8)!
-        fullBodyData.append(body.mailBodyData)
+        fullBodyData.append(body)
         let bodyBytes = [UInt8](fullBodyData)
         curl.uploadBodyBytes = bodyBytes
         
