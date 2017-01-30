@@ -129,9 +129,9 @@ public class SMTP {
 		verbose: Bool = false
 		) throws -> (responseHeader: Data, responseBody: Data) {
 		
-		let bodyData = body.data(using: .utf8)
+		let bodyData = body.data(using: .utf8)!
 		
-		send(subject: subject, body: bodyData, from: from, recipients: recipients)
+		return try send(subject: subject, body: bodyData, from: from, recipients: recipients)
 		
 	}
 		
